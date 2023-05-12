@@ -121,7 +121,7 @@ def change_online_status(request):
 
 def chat_window(request):
     if request.user.is_authenticated and request.user.online_status == True:
-        # frnd = CustomUser.objects.get(email_or_phone=request.user.connected_with)
-        return render(request, "chat_window.html", {"frnd_name": "frnd.full_name", "frnd_email":"request.user.connected_with"})
+        frnd = CustomUser.objects.get(email_or_phone=request.user.connected_with)
+        return render(request, "chat_window.html", {"frnd_name": frnd.full_name, "frnd_email":request.user.connected_with})
 
     return HttpResponseBadRequest("[!] You're not authenticated !!!")

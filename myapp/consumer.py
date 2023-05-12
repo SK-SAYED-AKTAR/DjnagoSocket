@@ -19,14 +19,6 @@ class SayedAsyncConsumer(SyncConsumer):
 
         # Add the user to the chat_group
         async_to_sync(self.channel_layer.group_add)("chat_group", self.channel_name)
-        # self.friend_channel_name = f'friend_{username}'
-        
-        # self.channel_layer.group_add(
-        #     self.friend_channel_name,
-        #     self.channel_name
-        # )
-        
-
         try:
             user = CustomUser.objects.get(email_or_phone=username)
             print("The User", user)
@@ -72,9 +64,9 @@ class SayedAsyncConsumer(SyncConsumer):
         # Instantiate the channel_layer
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "chat_group",  # Group name to send the message to
+            "chat_group",  
             {
-                "type": "chat.message",  # Message type that the consumers will handle
+                "type": "chat.message",  
                 "text": event['text']
             }
         )
