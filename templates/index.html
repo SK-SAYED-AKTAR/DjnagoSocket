@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Speakify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+    <script>
+        function make_connection() {
+            const emailOrPhone = '{{ user.email_or_phone }}';
+            const ws = new WebSocket(`ws://127.0.0.1:8000/ws/sc?userid=${emailOrPhone}`);
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if(data.gotUser === "no"){
+                    alert("[!] Sorry All Users Are Busy !!!");
+                }else{
+                    const conn_with = '{{ user.connected_with }}';
+                    if(conn_with === ""){
+                        document.location.reload(); 
+                    }
+                    document.getElementById("friend_name").innerText = `Name: ${data.name}`
+                    document.getElementById("friend_contact").innerText = `Contact info.: ${data.contact}`
+                    document.getElementById("friend_gender").innerText = `Gender: ${data.gender}`
+                    document.getElementById("friend_country").innerText = `Country: ${data.country}`
+                    document.getElementById("friend_interests").innerText = `Interests: ${data.interests}`
+                }
+                
+            };
+
+            ws.onclose = function () {
+                alert("Connection closed...");
+            };
+        }
+
+        function send_msg() {
+            let msg = document.getElementById("msg").value;
+            const ws = new WebSocket("ws://127.0.0.1:8000/ws/sc");
+            ws.onopen = function () {
+                ws.send(msg);
+            };
+        }
+    </script>
+
+    <style>
+        .centered-section {
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1, h6 {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'components/navbar.html' %}
+    {% if user.online_status %}
+    <section class="centered-section">
+        <h1>Welcome {{user.full_name}} !</h1>
+        {% if user.connected_with == "" %}
+        {% include 'components/connect_button.html' %}
+        {% else %}
+        <script>
+            make_connection();
+        </script>
+        <div class="card bg-dark text-light" style="width: 30rem;">
+            <div class="card-header card-title">
+                <h5>Friend's Details</h5>
+            </div>
+            <div class="card-body">
+                <p id="friend_name" class="card-text"></p>
+                <p id="friend_contact" class="card-text"></p>
+                <p id="friend_gender" class="card-text"></p>
+                <p id="friend_country" class="card-text"></p>
+                <p id="friend_interests" class="card-text"></p>
+                <a href="{% url 'chat_window' %}" class="btn btn-primary">Let's Chat</a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    {% else %}
+    <section class="centered-section">
+        <h1>Welcome {{user.full_name}} !</h1>
+        <h6>Go Online to Connect</h6>
+    </section>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
